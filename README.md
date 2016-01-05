@@ -12,8 +12,15 @@ Can be used as it is as either a single file HTML with all dependencies, or as a
 Best way to use it would be to change/enhance the formatting and API definition structure as required.
 
 ##Screenshots:
+
+---
 **List of APIs**
+
+---
 ![list of apis](https://raw.githubusercontent.com/jubyrajan/simple-api-doc/master/screenshot-list-of-apis.png)
 
+---
 **API Detail**
+
+---
 ![api detail expanded](https://raw.githubusercontent.com/jubyrajan/simple-api-doc/master/screenshot-api-detail-expanded.png)
