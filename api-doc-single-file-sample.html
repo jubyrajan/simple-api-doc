@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>API Documentation</title>
+		<style type="text/css">
+			body {
+				font-family: Arial;
+			}
+			
+			.api-category {
+				margin-top: 20px;
+			}
+			
+			.api-category-header {
+				font-weight: bold;
+				color: black;
+			}
+			
+			.api-description {
+				float: right;
+				padding: 5px;
+			}
+			
+			.api-detail {
+				margin: 10px;
+			}
+			
+			.api-detail-table {
+				color: black;
+				font-size: 0.9em;
+				width: 100%;
+				border-spacing: 0px;
+			}
+			
+			.api-detail-table th {
+				font-weight: bold;
+				border: 1px solid #c3c3c3;
+				padding: 10px;
+			}
+			
+			.api-detail-table td {
+				border: 1px solid #c3c3c3;
+				padding: 10px;
+			}
+			
+			.post-section {
+				background-color: #e7f6ec;
+				border: 1px solid #c3e8d1;
+				margin-left: 20px;
+				color: #10a54a;
+			}
+			
+			.get-section {
+				background-color: #e7f0f7;
+				border: 1px solid #c3d9ec;
+				margin-left: 20px;
+				color: #0f6ab4;
+			}
+			
+			.put-section {
+				background-color: #f9f2e9;
+				border: 1px solid #f0e0ca;
+				margin-left: 20px;
+				color: #c5862b;
+			}
+			
+			.delete-section {
+				background-color: #f5e8e8;
+				border: 1px solid #e8c6c7;
+				margin-left: 20px;
+				color: #a41e22;
+			}
+			
+			.api-method {
+				text-decoration: none;
+				text-transform: uppercase;
+				font-weight: bold;
+				color: white;
+				padding: 7px;
+				text-align: center;
+				font-size: 0.7em;
+				border-radius: 2px;
+				display: inline-block;
+				width: 50px;
+			}
+			
+			.api-url {
+				text-decoration: none;
+				color: black;
+			}
+			
+			.api-url:hover {
+				text-decoration: underline;
+			}
+			
+			.post-method {
+				background-color: #10a54a;
+			}
+			
+			.get-method {
+				background-color: #0f6ab4;
+			}
+			
+			.put-method {
+				background-color: #c5862b;
+			}
+			
+			.delete-method {
+				background-color: #a41e22;
+			}
+		</style>
+		<script type="text/javascript">
+			function isEmpty(s) {
+				return (typeof s === 'undefined') || s == null || s.trim() === '';
+			}
+			
+			function toggleApiDetail(apiId) {
+				var apiDetail = document.getElementById(apiId);
+				if(apiDetail) {
+					if(isEmpty(apiDetail.style.display)) {
+						apiDetail.style.display = 'none';
+					} else {
+						apiDetail.style.display = '';
+					}
+				}
+			}
+			
+			function showApis(config, targetId) {
+				var targetEl = null;
+				if(targetId) {
+					targetEl = document.getElementById(targetId);
+				}
+				if(!targetEl) {
+					targetEl = document.body;
+				}
+				var apiCounts = {get: 0, post: 0, put: 0, delete: 0, total: 0};
+				var html = '';
+				for(var i = 0; i < config.categories.length; i++) {
+					var category = config.categories[i];
+					html += '<div class="api-category">';
+					html += '<div class="api-category-header">' + category.title + '</div>';
+					if(category.apis) {
+						for(var j = 0; j < category.apis.length; j++) {
+							var api = category.apis[j];
+							var apiId = 'api-' + i + '-' + j;
+							var httpMethod = api.httpMethod;
+							apiCounts[httpMethod] ++;
+							apiCounts.total ++;
+							var description = api.description ? api.description : '';
+							html += '<div class="' + httpMethod + '-section">';
+							html += '<a class="api-method ' + httpMethod + '-method" href="javascript:toggleApiDetail(\'' + apiId + '\');">' + httpMethod + '</a> <a class="api-url" href="javascript:toggleApiDetail(\'' + apiId + '\');">' + api.url + '</a>';
+							html += '<div class="api-description">' + description + '</div>';
+							html += '<div id="' + apiId + '" class="api-detail" style="display:none;">';
+							if(api.parameters && api.parameters.length > 0) {
+								html += '<br/><div>Parameters</div>';
+								html += '<table class="api-detail-table">';
+								html += '<tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>';
+								for(var k = 0; k < api.parameters.length; k++) {
+									var param = api.parameters[k];
+									html += '<tr><td>' + param.name + '</td><td>' + param.type + '</td><td></td><td></td><td>' + param.description + '</td></tr>';	
+								} 
+								html += '</table>';
+							}
+							if(api.responses && api.responses.length > 0) {
+								html += '<br/><div>Responses</div>';
+								html += '<table class="api-detail-table">';
+								html += '<tr><th>Result</th><th>Response Code</th><th>Response</th></tr>';
+								for(var k = 0; k < api.responses.length; k++) {
+									var response = api.responses[k];
+									var responseBody = JSON.stringify(response.responseBody, null, 4);
+									html += '<tr><td>' + response.result + '</td><td>' + response.responseCode + '</td><td><pre>' + responseBody + '</pre></td></tr>';	
+								} 
+								html += '</table>';
+							}
+							html += '</div>';
+							html += '</div>';
+						}
+					}
+					html += '</div>';
+				}
+				html += '<br/><div><b>Total APIs: </b>' + apiCounts.total +
+					', <b>GET: </b>' + apiCounts.get +
+					', <b>POST: </b>' + apiCounts.post +
+					', <b>PUT: </b>' + apiCounts.put +
+					', <b>DELETE: </b>' + apiCounts.delete + '</div>';
+				targetEl.innerHTML = html;
+			}
+		</script>
+	</head>
+	<body>
+		<div class="api-category">
+			<div class="api-category-header">User Registration</div>
+			<div class="post-section">
+				<a class="api-method post-method" href="#!/pet/addPet">POST</a> <a class="api-url" href="">/register_user</a>
+				<div class="api-description">Register New User</div>
+			</div>
+			<div class="get-section">
+				<a class="api-method get-method" href="#!/pet/addPet">GET</a> <a class="api-url" href="">/register_user</a>
+			</div>
+			<div class="put-section">
+				<a class="api-method put-method" href="#!/pet/addPet">PUT</a> <a class="api-url" href="">/register_user</a>
+			</div>
+			<div class="delete-section">
+				<a class="api-method delete-method" href="#!/pet/addPet">DELETE</a> <a class="api-url" href="">/register_user</a>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var authTokenParam = {
+				name: 'auth_token',
+				description: 'Authentication token obtained during user registration. Mandatory for mobile app users. Not required for web app users.',
+				type: 'string',
+				mandatory: true
+			};
+
+			var config = {
+				categories: [
+					{
+						title: 'User',
+						apis: [
+							{
+								httpMethod: 'post',
+								url: '/registerUser',
+								description: 'Register new user',
+								parameters: [
+									{
+										name: 'mobile',
+										description: 'Mobile number of the user',
+										type: 'string',
+										mandatory: true
+									},
+									{
+										name: 'email',
+										description: 'Email of the user',
+										type: 'string',
+										mandatory: true
+									},
+									{
+										name: 'fullName',
+										description: 'Full name of the user. Need not be unique.',
+										type: 'string',
+										mandatory: true
+									},
+									{
+										name: 'userName',
+										description: 'Login name to authenticate web user, should be unique. Not required for mobile app users.',
+										type: 'string',
+										mandatory: false
+									},
+									{
+										name: 'password',
+										description: 'Password to authenticate web user. Not required for mobile app users.',
+										type: 'string',
+										mandatory: false
+									}
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'Registration Successful',
+										responseBody: {
+											data: 'auth token string',
+											statusCode: 200,
+											statusMessage: 'User registration successful'
+										} 
+									},
+									{
+										responseCode: 400,
+										result: 'User with mobile number or email already exists',
+										responseBody: {
+											statusCode: 400, 
+											statusMessage: 'User with mobile number or email already exists'
+										}
+									},
+									{
+										responseCode: 400,
+										result: 'User with name aleady exists',
+										responseBody: {
+											statusCode: 400, 
+											statusMessage: 'User with name aleady exists'
+										}
+									}
+								]
+							},
+							{
+								httpMethod: 'post',
+								url: '/authenticateUser',
+								description: 'Authenticate user',
+								parameters: [
+									{
+										name: 'user_name',
+										description: 'User login name',
+										type: 'string',
+										mandatory: true
+									},
+									{
+										name: 'password',
+										description: 'User login password',
+										type: 'string',
+										mandatory: true
+									}
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'User authentication successful',
+										responseBody: {
+											statusCode: 200,
+											data: {
+												valid: 'true',
+												userRecordId: 'Internal record_id of user',
+												loginName: 'User login name',
+												fullName: 'User full name',
+												sessionId: 'Session Id',
+												userId: 'User Id'
+											}
+										}
+									},
+									{
+										responseCode: 400,
+										result: 'User authentication not successful',
+										responseBody: {
+											statusCode: 400,
+											data: {
+												valid: 'false'
+											}
+										}
+									}
+								]
+							},
+							{
+								httpMethod: 'post',
+								url: '/logoutUser',
+								description: 'Logout already authenticated user; uses session id from cookie to identify user'
+							},
+							{
+								httpMethod: 'get',
+								url: '/userDetail',
+								description: 'Get user details',
+								parameters: [
+									authTokenParam,
+									{
+										name: 'record_id',
+										description: 'Record Id of user',
+										type: 'string',
+										mandatory: true
+									}
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'User detail',
+										responseBody: {
+											statusCode: 200,
+											data: {
+												record_id: 'user record id'
+											}
+										}
+									}
+								]
+							},
+							{
+								httpMethod: 'delete',
+								url: '/deleteUser',
+								description: 'Delete a user',
+								parameters: [
+									authTokenParam,
+									{
+										name: 'record_id',
+										description: 'Record Id of user to be deleted',
+										type: 'string',
+										mandatory: true
+									}
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'User deleted successfully',
+										responseBody: {
+											statusCode: 200,
+											data: {
+												message: 'User deleted successfully'
+											}
+										}
+									},
+									{
+										responseCode: 400,
+										result: 'User with given id does not exist',
+										responseBody: {
+											statusCode: 400,
+											data: {
+												message: 'User with given id does not exist'
+											}
+										}
+									}
+								]
+							}
+						]
+					},
+					{
+						title: 'Message',
+						apis: [
+							{
+								httpMethod: 'get',
+								url: '/userMessages',
+								description: 'Get messages for user',
+								parameters: [
+									authTokenParam
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'List of messages for user',
+										responseBody: {
+											statusCode: 200,
+											data: [
+												{messageId: 'messageId1', messageTimeStamp: 'when message was sent', from: 'who send the message', message: 'message text'}
+											]
+										}
+									}
+								]
+							},
+							{
+								httpMethod: 'post',
+								url: '/postMessage',
+								description: 'Post a message',
+								parameters: [
+									authTokenParam
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'Post message successful',
+										responseBody: {
+											statusCode: 200,
+											data: {
+												statusMessage: 'Post message successful',
+												messageId: 'internal id of newly posted message'
+											}
+										}
+									}
+								]
+							}
+						]
+					},
+					{
+						title: 'Other',
+						apis: [
+							{
+								httpMethod: 'get',
+								url: '/statusCodes',
+								description: 'Get status codes',
+								parameters: [
+									authTokenParam
+								],
+								responses: [
+									{
+										responseCode: 200,
+										result: 'List of status codes',
+										responseBody: {
+											statusCode: 200,
+											data: [
+												{statusCodeKey: 'status code key1', statusCodeDisplay: 'status code display value1'},
+												{statusCodeKey: 'status code key2', statusCodeDisplay: 'status code display value2'}
+											]
+										}
+									}
+								]
+							}
+						]
+					}
+				]
+			};
+			showApis(config);
+
+		</script>
+	</body>
+</html>
